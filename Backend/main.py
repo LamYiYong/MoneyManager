@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 import models
 import schemas
@@ -13,6 +14,15 @@ app = FastAPI(
     description="Personal Finance Management Backend",
     version="1.0.0"
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # ========= Session Dependency =========
 def get_db():
@@ -66,4 +76,33 @@ def monthly_summary(
         user_id=1, 
         year=year,
         month=month
+    )
+
+@app.get(
+    "/analytics/category-breakdown",
+    response_model=schemas.CategoryBreakdownResponse
+)
+def category_breakdown(
+    year: int,
+    month: int,
+    db: Session = Depends(get_db)
+):
+    return crud.get_category_breakdown(
+        db=db,
+        user_id=1,
+        year=year,
+        month=month
+    )
+@app.get(
+    "/analytics/spending-trend",
+    response_model=schemas.SpendingTrendResponse
+)
+def spending_trend(
+    days: int = 7,
+    db: Session = Depends(get_db)
+):
+    return crud.get_spending_trend(
+        db=db,
+        user_id=1,
+        days=days
     )
