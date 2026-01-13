@@ -1,6 +1,6 @@
+import "./App.css";
 import { useEffect, useState } from "react";
 import {
-  getMonthlySummary,
   getCategoryBreakdown,
   getSpendingTrend,
 } from "./api/analytics";
@@ -12,33 +12,52 @@ export default function App() {
   const [categories, setCategories] = useState([]);
   const [trend, setTrend] = useState([]);
 
-useEffect(() => {
-  getCategoryBreakdown(2026, 1).then((res) => {
-    console.log("RAW category response:", res.data);
-    setCategories(res.data.categories);
-  }).catch(err => {
-    console.error("Category API error:", err);
-  });
+ useEffect(() => {
+  getCategoryBreakdown(2026, 1)
+    .then((res) => {
+      console.log("Category API response:", res.data);
+
+      // 直接用 API 的 categories
+      setCategories(res.data.categories);
+    })
+    .catch((err) => {
+      console.error("Category API error:", err);
+    });
 
   getSpendingTrend(7).then((res) => {
-    console.log("RAW trend response:", res.data);
     setTrend(res.data.trend);
-  }).catch(err => {
-    console.error("Trend API error:", err);
   });
 }, []);
 
 
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>📊 Finance Dashboard</h1>
+    <div className="dashboard">
+      {/* Title */}
+      <div className="dashboard-title">
+        📊 <span>Finance Dashboard</span>
+      </div>
 
-      <h2>Category Breakdown</h2>
-      <CategoryPie data={categories} />
+      {/* Top Grid */}
+      <div className="grid-2">
+        <div className="card">
+          <div className="card-title">Category Breakdown</div>
+          <CategoryPie data={categories} />
+        </div>
 
-      <h2>Spending Trend (Last 7 Days)</h2>
-      <SpendingTrend data={trend} />
+        <div className="card">
+          <div className="card-title">Monthly Overview</div>
+          <p style={{ color: "#666" }}>
+            Total categories: {categories.length}
+          </p>
+        </div>
+      </div>
+
+      {/* Trend Card */}
+      <div className="card">
+        <div className="card-title">Spending Trend (Last 7 Days)</div>
+        <SpendingTrend data={trend} />
+      </div>
     </div>
   );
 }
